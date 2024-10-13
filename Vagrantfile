@@ -1,24 +1,41 @@
-Vagrant.configure("2") do |config|
-  title = 'debian-wine'
+title = 'debian-wine'
 
+machines = {
+  "controller" => {
+    "name" => "controller" ,
+    "ip" => "172.20.1.254",
+    "netmask" => "255.255.255.0"
+  },
+  "main" => {
+    "name" => "main" ,
+    "ip" => "172.20.1.2",
+    "netmask" => "255.255.255.0"
+  }
+}
+
+Vagrant.configure("2") do |config|
   config.vm.define :controller do |c|
     c.vm.provider :docker do |d|
-      d.name = title+'-controller'
+      machine = machines["controller"]
       d.image = 'ghcr.io/andzuc/ansible-ee:3.20.20241001.11'
+      d.name = machine["name"]
       d.has_ssh = true
       d.compose = true
       d.compose_configuration = {
         "version" => "3.4",
         "services" => {
-          "controller" => {
+          machine["name"] => {
             "container_name" => d.name,
             "networks" => {
               "extnet" => {
               },
               "intnet" => {
-                "ipv4_address" => "172.20.1.254"
+                "ipv4_address" => machine["ip"]
               }
-            }
+            },
+            "extra_hosts" => [
+              "main=#{machines["main"]["ip"]}"
+            ]
           }
         },
         "networks" => {
@@ -50,18 +67,19 @@ Vagrant.configure("2") do |config|
   end
     
   config.vm.define :main do |main|
+    machine = machines["main"]
     main.vm.box = "andreazuccherelli/debian-stable"
     main.vm.box_architecture = "amd64"
-    main.vm.hostname = title
+    main.vm.hostname = machine["ame"]
     main.vm.network :public_network,
-                    :ip => "172.20.1.2",
-                    :netmask => "255.255.255.0",
+                    :ip => machine["ip"],
+                    :netmask => machine["netmask"],
                     :dev => "intnet",
                     :mode => "bridge",
                     :type => "bridge"
     main.vm.provider :libvirt do |libvirt|
       libvirt.driver = 'kvm'
-      libvirt.title = 'debian-wine'
+      libvirt.title = title
       libvirt.memory = 2048
       libvirt.cpus = 4
     end
