@@ -61,13 +61,18 @@ Vagrant.configure("2") do |config|
       }
     end
     
-    c.vm.provision :ansible, type: :ansible_local do |ansible|
-      ansible.compatibility_mode = "2.0"
-      ansible.install = 'false'
-      ansible.verbose = 'v'
-      ansible.limit = "all"
-      ansible.playbook = "provisioning/playbook.yml"
-    end
+    # c.vm.provision :ansible, type: :ansible_local do |ansible|
+    #   ansible.compatibility_mode = "2.0"
+    #   ansible.install = 'false'
+    #   ansible.verbose = 'v'
+    #   ansible.limit = "all"
+    #   ansible.playbook = "provisioning/playbook.yml"
+    #   ansible.inventory_path= 'provisioning/inventory/vagrant'
+    # end
+    c.vm.provision :shell,
+                   :name => 'ANSIBLE provisioner',
+                   :privileged => false,
+                   :inline => 'source ansible-ee/bin/activate && cd /vagrant/ansible && ANSIBLE_CONFIG=config/vagrant/ansible.cfg bin/provision'
   end
     
   config.vm.define :main do |main|
