@@ -1,0 +1,14 @@
+---
+- name: "show variables"
+  tags: vars
+  hosts: all
+  gather_facts: false
+  tasks:
+    - debug:
+        var: vars
+- name: "ping: check all hosts"
+  tags: ping
+  hosts: all
+  tasks:
+    - name: "ping"
+      ansible.builtin.ping:

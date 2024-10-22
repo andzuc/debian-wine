@@ -15,6 +15,8 @@ machines = {
 
 Vagrant.configure("2") do |config|
   config.vm.define :controller do |c|
+    c.vm.synced_folder '.', '/vagrant', disabled: false
+
     c.vm.provider :docker do |d|
       machine = machines["controller"]
       d.image = 'ghcr.io/andzuc/ansible-ee:3.20.20241001.11'
@@ -60,9 +62,11 @@ Vagrant.configure("2") do |config|
     end
     
     c.vm.provision :ansible, type: :ansible_local do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.install = 'false'
       ansible.verbose = 'v'
-      ansible.playbook = 'playbook.yml'
+      ansible.limit = "all"
+      ansible.playbook = "provisioning/playbook.yml"
     end
   end
     
@@ -71,12 +75,14 @@ Vagrant.configure("2") do |config|
     main.vm.box = "andreazuccherelli/debian-stable"
     main.vm.box_architecture = "amd64"
     main.vm.hostname = machine["ame"]
+    main.vm.synced_folder '.', '/vagrant', disabled: true
     main.vm.network :public_network,
                     :ip => machine["ip"],
                     :netmask => machine["netmask"],
                     :dev => "intnet",
                     :mode => "bridge",
                     :type => "bridge"
+
     main.vm.provider :libvirt do |libvirt|
       libvirt.driver = 'kvm'
       libvirt.title = title
