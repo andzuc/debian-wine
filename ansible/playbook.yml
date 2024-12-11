@@ -12,6 +12,51 @@
   tasks:
     - name: "ping"
       ansible.builtin.ping:
+- name: "agents: install QEMU and SPICE agents"
+  tags: agents
+  hosts: wine_hosts
+  become: true
+  tasks:
+    # TODO: make distro independent (https://serverfault.com/a/649355)
+    - name: "Ensures APT cache is up-to-date"
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 86400
+    - name: "Install QEMU and SPICE agents"
+      ansible.builtin.package:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - spice-vdagent
+        - qemu-guest-agent
+    - name: "Enable agents' services"
+      ansible.builtin.service:
+        name: '{{ item }}'
+        enabled: true
+        state: started
+      with_items:
+        # - spice-vdagent (started by 
+        - qemu-guest-agent
+- name: "x11: install X server"
+  tags: x11
+  hosts: wine_hosts
+  become: true
+  tasks:
+    # TODO: make distro independent (https://serverfault.com/a/649355)
+    - name: "Ensures APT cache is up-to-date"
+      ansible.builtin.apt:
+        update_cache: true
+    - name: "Install X11"
+      # TODO: astrazione a ruolo: https://gist.github.com/ryot4/0712f02f709be90bd5d6812b85e3b529
+      ansible.builtin.package:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - xserver-xorg-video-qxl
+        - x11-xserver-utils
+        - x11-xkb-utils
+        - x11-utils
+        - xinit
 - name: "wine: install wine"
   tags: wine
   hosts: wine_hosts

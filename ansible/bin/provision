@@ -1,4 +1,4 @@
 #!/bin/bash
 PYTHONUNBUFFERED=1
 ANSIBLE_FORCE_COLOR=true
-ansible-playbook --limit="all" -v playbook.yml
+ansible-playbook -v "$@" playbook.yml

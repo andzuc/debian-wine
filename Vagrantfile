@@ -70,9 +70,9 @@ Vagrant.configure("2") do |config|
     #   ansible.inventory_path= 'provisioning/inventory/vagrant'
     # end
     c.vm.provision :shell,
-                   :name => 'ANSIBLE provisioner',
+                   :name => "ANSIBLE provisioner",
                    :privileged => false,
-                   :inline => 'source ansible-ee/bin/activate && cd /vagrant/ansible && ANSIBLE_CONFIG=config/vagrant/ansible.cfg bin/provision'
+                   :inline => "source ansible-ee/bin/activate && cd /vagrant/ansible && ANSIBLE_CONFIG=config/vagrant/ansible.cfg bin/provision #{ENV['ANSIBLE_ARGS']}"
   end
     
   config.vm.define :main do |main|
@@ -93,6 +93,10 @@ Vagrant.configure("2") do |config|
       libvirt.title = title
       libvirt.memory = 2048
       libvirt.cpus = 4
+      libvirt.graphics_type = 'spice'
+      libvirt.video_type = 'qxl'
+      libvirt.channel :type => 'unix', :target_name => 'org.qemu.guest_agent.0', :target_type => 'virtio'
+      libvirt.channel :type => 'spicevmc', :target_name => 'com.redhat.spice.0', :target_type => 'virtio'
     end
   end
 end
