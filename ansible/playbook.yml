@@ -27,7 +27,6 @@
         name: '{{ item }}'
         state: present
       with_items:
-        - spice-vdagent
         - qemu-guest-agent
     - name: "Enable agents' services"
       ansible.builtin.service:
@@ -43,22 +42,35 @@
   become: true
   tasks:
     # TODO: make distro independent (https://serverfault.com/a/649355)
-    - name: "Ensures APT cache is up-to-date"
+    - name: "x11: apt update"
       ansible.builtin.apt:
         update_cache: true
-    - name: "Install X11"
+        cache_valid_time: 86400
+    - name: "x11: install packages"
       # TODO: astrazione a ruolo: https://gist.github.com/ryot4/0712f02f709be90bd5d6812b85e3b529
       ansible.builtin.package:
         name: '{{ item }}'
         state: present
       with_items:
         - xserver-xorg-video-qxl
+        - xserver-xorg-input-evdev
         - x11-xserver-utils
         - x11-xkb-utils
         - x11-utils
         - xinit
+        - xterm
+        - spice-vdagent
 - name: "wine: install wine"
   tags: wine
   hosts: wine_hosts
   roles:
     - name: ansible-role-wine
+- name: "wine: setup demo"
+  # Installs: numb res by Carillon & Cyberiad (https://www.pouet.net/prod.php?which=56900)
+  tags: demo
+  hosts: wine_hosts
+  tasks:
+    - name: "wine: download demo"
+      ansible.builtin.get_url:
+        url: https://files.scene.org/get/parties/2011/thegathering11/demo/cncdflt_numb_res.zip
+        dest: /tmp
