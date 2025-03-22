@@ -34,7 +34,6 @@
         enabled: true
         state: started
       with_items:
-        # - spice-vdagent (started by 
         - qemu-guest-agent
 - name: "x11: install X server"
   tags: x11
@@ -60,6 +59,8 @@
         - xinit
         - xterm
         - spice-vdagent
+        - mesa-utils
+        - glmark2-x11
 - name: "wine: install wine"
   tags: wine
   hosts: wine_hosts

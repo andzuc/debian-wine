@@ -93,8 +93,12 @@ Vagrant.configure("2") do |config|
       libvirt.title = title
       libvirt.memory = 2048
       libvirt.cpus = 4
-      libvirt.graphics_type = 'spice'
-      libvirt.video_type = 'qxl'
+      # Configurazione grafica
+      libvirt.graphics_type = 'spice'          # SPICE per il display
+      libvirt.graphics_gl = true               # Abilita OpenGL per SPICE
+      libvirt.video_type = 'virtio'            # VirtIO-GPU per il video
+      #libvirt.video_type = 'qxl'
+      libvirt.video_accel3d = true             # Abilita accelerazione 3D
       libvirt.channel :type => 'unix', :target_name => 'org.qemu.guest_agent.0', :target_type => 'virtio'
       libvirt.channel :type => 'spicevmc', :target_name => 'com.redhat.spice.0', :target_type => 'virtio'
     end
